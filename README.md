@@ -18,6 +18,7 @@ Set environment variables for the API server (Anthropic is optional):
 export HF_ACCESS_TOKEN="your-token"
 export ANTHROPIC_API_KEY="your-key"
 ```
+You can also put these in `.env` (the server loads it automatically).
 
 Run the local API server (keeps keys off the browser):
 ```

@@ -6,7 +6,14 @@ async function requestRecipe(path, ingredientsArr) {
     })
 
     if (!response.ok) {
-        const message = await response.text()
+        const raw = await response.text()
+        let message = raw
+        try {
+            const data = JSON.parse(raw)
+            message = data?.error || data?.message || raw
+        } catch (error) {
+            // Ignore JSON parse errors and use raw text.
+        }
         throw new Error(message || "Recipe request failed.")
     }
 

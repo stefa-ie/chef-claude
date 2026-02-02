@@ -1,3 +1,4 @@
+require("dotenv").config()
 const express = require("express")
 const Anthropic = require("@anthropic-ai/sdk")
 const { HfInference } = require("@huggingface/inference")
@@ -22,6 +23,12 @@ if (!anthropic) {
 
 const app = express()
 app.use(express.json())
+
+function sendError(res, error, fallback) {
+    const message = error?.message || fallback
+    console.error(message, error)
+    res.status(500).json({ error: message })
+}
 
 function getIngredients(req) {
     const { ingredients } = req.body || {}
@@ -67,7 +74,7 @@ app.post("/api/recipe/claude", async (req, res) => {
         })
         res.json({ recipe: msg.content[0].text })
     } catch (error) {
-        res.status(500).send(error?.message || "Claude request failed.")
+        sendError(res, error, "Claude request failed.")
     }
 })
 
@@ -92,7 +99,7 @@ app.post("/api/recipe/mistral", async (req, res) => {
         })
         res.json({ recipe: response.choices[0].message.content })
     } catch (error) {
-        res.status(500).send(error?.message || "Mistral request failed.")
+        sendError(res, error, "Mistral request failed.")
     }
 })
 
