@@ -1,7 +1,7 @@
 require("dotenv").config()
 const express = require("express")
 const Anthropic = require("@anthropic-ai/sdk")
-const { HfInference } = require("@huggingface/inference")
+const { InferenceClient } = require("@huggingface/inference")
 
 const SYSTEM_PROMPT = `
 You are an assistant that receives a list of ingredients that a user has and suggests a recipe they could make with some or all of those ingredients. You don't need to use every ingredient they mention in your recipe. The recipe can include additional ingredients they didn't mention, but try not to include too many extra ingredients. Format your response in markdown to make it easier to render to a web page
@@ -16,11 +16,9 @@ if (!HF_ACCESS_TOKEN) {
 const anthropic = ANTHROPIC_API_KEY
     ? new Anthropic({ apiKey: ANTHROPIC_API_KEY })
     : null
-const hf = new HfInference(HF_ACCESS_TOKEN, {
-    endpointUrl: "https://router.huggingface.co",
-})
+const hf = new InferenceClient(HF_ACCESS_TOKEN)
 if (!anthropic) {
-    console.warn("ANTHROPIC_API_KEY not set. Falling back to Mistral.")
+    console.warn("ANTHROPIC_API_KEY not set. Falling back to Hugging Face.")
 }
 
 const app = express()
@@ -49,16 +47,17 @@ app.post("/api/recipe/claude", async (req, res) => {
     const ingredientsString = ingredients.join(", ")
     try {
         if (!anthropic) {
+            // Try using a different, more reliable model
             const response = await hf.chatCompletion({
-                model: "mistralai/Mixtral-8x7B-Instruct-v0.1",
+                model: "meta-llama/Llama-3.2-3B-Instruct",
                 messages: [
-                    { role: "system", content: SYSTEM_PROMPT },
-                    {
-                        role: "user",
-                        content: `I have ${ingredientsString}. Please give me a recipe you'd recommend I make!`,
-                    },
+                    { 
+                        role: "user", 
+                        content: `${SYSTEM_PROMPT}\n\nI have ${ingredientsString}. Please give me a recipe you'd recommend I make!` 
+                    }
                 ],
-                max_tokens: 1024,
+                max_tokens: 512,
+                temperature: 0.7,
             })
             return res.json({ recipe: response.choices[0].message.content })
         }
@@ -89,15 +88,15 @@ app.post("/api/recipe/mistral", async (req, res) => {
     const ingredientsString = ingredients.join(", ")
     try {
         const response = await hf.chatCompletion({
-            model: "mistralai/Mixtral-8x7B-Instruct-v0.1",
+            model: "meta-llama/Llama-3.2-3B-Instruct",
             messages: [
-                { role: "system", content: SYSTEM_PROMPT },
-                {
-                    role: "user",
-                    content: `I have ${ingredientsString}. Please give me a recipe you'd recommend I make!`,
-                },
+                { 
+                    role: "user", 
+                    content: `${SYSTEM_PROMPT}\n\nI have ${ingredientsString}. Please give me a recipe you'd recommend I make!` 
+                }
             ],
-            max_tokens: 1024,
+            max_tokens: 512,
+            temperature: 0.7,
         })
         res.json({ recipe: response.choices[0].message.content })
     } catch (error) {

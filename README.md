@@ -63,4 +63,3 @@ npm run preview
 
 ## 🙌 Acknowledgements
 Built as part of the Scrimba React course.
-# chef-claude

@@ -5,14 +5,14 @@ import { getRecipeFromChefClaude, getRecipeFromMistral } from "./ai"
 
 export default function Main() {
     const [ingredients, setIngredients] = React.useState(
-        ["chicken", "all the main spices", "corn", "heavy cream", "pasta"]
+        []
     )
     const [recipe, setRecipe] = React.useState("")
     const recipeRef = React.useRef(null)
 
     React.useEffect(() => {
-        if (recipe !== "" && recipeSection.current !== null) {
-            recipeSection.current.scrollIntoView({behavior: "smooth"})
+        if (recipe !== "" && recipeRef.current !== null) {
+            recipeRef.current.scrollIntoView({behavior: "smooth"})
         }
     }, [recipe])
 
@@ -45,7 +45,7 @@ export default function Main() {
                 />
             }
 
-            {recipe && <ClaudeRecipe recipe={recipe} />}
+            {recipe && <ClaudeRecipe recipe={recipe} recipeRef={recipeRef}/>}
         </main>
     )
 }
