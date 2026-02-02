@@ -13,10 +13,10 @@ Install dependencies:
 npm install
 ```
 
-Set environment variables for the API server:
+Set environment variables for the API server (Anthropic is optional):
 ```
-export ANTHROPIC_API_KEY="your-key"
 export HF_ACCESS_TOKEN="your-token"
+export ANTHROPIC_API_KEY="your-key"
 ```
 
 Run the local API server (keeps keys off the browser):

@@ -8,16 +8,17 @@ You are an assistant that receives a list of ingredients that a user has and sug
 
 const { ANTHROPIC_API_KEY, HF_ACCESS_TOKEN, PORT = 5174 } = process.env
 
-if (!ANTHROPIC_API_KEY) {
-    throw new Error("Missing ANTHROPIC_API_KEY environment variable.")
-}
-
 if (!HF_ACCESS_TOKEN) {
     throw new Error("Missing HF_ACCESS_TOKEN environment variable.")
 }
 
-const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY })
+const anthropic = ANTHROPIC_API_KEY
+    ? new Anthropic({ apiKey: ANTHROPIC_API_KEY })
+    : null
 const hf = new HfInference(HF_ACCESS_TOKEN)
+if (!anthropic) {
+    console.warn("ANTHROPIC_API_KEY not set. Falling back to Mistral.")
+}
 
 const app = express()
 app.use(express.json())
@@ -38,6 +39,21 @@ app.post("/api/recipe/claude", async (req, res) => {
 
     const ingredientsString = ingredients.join(", ")
     try {
+        if (!anthropic) {
+            const response = await hf.chatCompletion({
+                model: "mistralai/Mixtral-8x7B-Instruct-v0.1",
+                messages: [
+                    { role: "system", content: SYSTEM_PROMPT },
+                    {
+                        role: "user",
+                        content: `I have ${ingredientsString}. Please give me a recipe you'd recommend I make!`,
+                    },
+                ],
+                max_tokens: 1024,
+            })
+            return res.json({ recipe: response.choices[0].message.content })
+        }
+
         const msg = await anthropic.messages.create({
             model: "claude-3-haiku-20240307",
             max_tokens: 1024,
