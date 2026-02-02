@@ -3,7 +3,7 @@ A React + Vite mini app that lets you build an ingredient list and reveals a sug
 
 ## ✨ Features
 - Add ingredients via a form and see them listed instantly
-- Reveal a “Chef Claude Recommends” recipe after 4+ ingredients
+- Reveal a “Chef Claude Recommends” recipe after 3+ ingredients
 - Simple, responsive UI styled in `index.css`
 - Vite-powered dev setup
 
