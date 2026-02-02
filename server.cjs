@@ -16,7 +16,9 @@ if (!HF_ACCESS_TOKEN) {
 const anthropic = ANTHROPIC_API_KEY
     ? new Anthropic({ apiKey: ANTHROPIC_API_KEY })
     : null
-const hf = new HfInference(HF_ACCESS_TOKEN)
+const hf = new HfInference(HF_ACCESS_TOKEN, {
+    endpointUrl: "https://router.huggingface.co",
+})
 if (!anthropic) {
     console.warn("ANTHROPIC_API_KEY not set. Falling back to Mistral.")
 }

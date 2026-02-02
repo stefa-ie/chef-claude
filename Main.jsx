@@ -8,6 +8,13 @@ export default function Main() {
         ["chicken", "all the main spices", "corn", "heavy cream", "pasta"]
     )
     const [recipe, setRecipe] = React.useState("")
+    const recipeRef = React.useRef(null)
+
+    React.useEffect(() => {
+        if (recipe !== "" && recipeSection.current !== null) {
+            recipeSection.current.scrollIntoView({behavior: "smooth"})
+        }
+    }, [recipe])
 
     async function getRecipe() {
         const recipeMarkdown = await getRecipeFromChefClaude(ingredients)
